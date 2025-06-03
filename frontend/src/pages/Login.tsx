@@ -40,6 +40,11 @@ export default function Login() {
       return;
     }
 
+    if (account === '' || password === '') {
+      setError("账号和密码不能为空");
+      return;
+    }
+
     try {
       const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/login`, {
         account,
