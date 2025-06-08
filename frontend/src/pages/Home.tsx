@@ -1,7 +1,7 @@
 import React from 'react'
 import NavBar from '../components/NavBar'
 import { useEffect, useState } from 'react';
-import type { PostHeader } from '../types';
+import type { PostHeader, PostHeadersResponse } from '../types';
 import HomePostList from '../components/HomePostList';
 import axios from 'axios';
 
@@ -18,7 +18,7 @@ function Home() {
 
         const token = localStorage.getItem('token');
 
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/home`, {
+        const response = await axios.get<PostHeadersResponse>(`${import.meta.env.VITE_API_URL}/home`, {
           headers: {
             'Authorization': `Bearer ${token}`
           },
