@@ -5,6 +5,7 @@ import Register from './pages/Register'
 import Home from './pages/Home'
 import Profile from "./pages/Profile"
 import MyPosts from "./pages/MyPosts"
+import Submit from "./pages/Submit"
 
 function RootRedirect() {
   const navigate = useNavigate()
@@ -26,6 +27,7 @@ function App() {
       <Route path="/home" element={<Home /> } />
       <Route path="/myposts" element={<MyPosts />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/profile/submit" element={<Submit />} />
     </Routes>
   )
 }
