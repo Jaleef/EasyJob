@@ -3,7 +3,7 @@ import React from "react";
 import PostItem from "./PostHeaderItem";
 import type { PostHeader } from "../types";
 
-interface PostListProps {
+interface HomePostListProps {
   posts: PostHeader[];
   loading: boolean;
   error: string | null;
@@ -11,7 +11,7 @@ interface PostListProps {
   emptyMessage?: string;
 }
 
-const PostList: React.FC<PostListProps> = ({
+const PostList: React.FC<HomePostListProps> = ({
   posts,
   loading,
   error,
