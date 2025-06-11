@@ -1,8 +1,8 @@
 import React from "react";
-import type { PostHeader } from "../types";
+import type { PostItemType } from "../types";
 
 interface PostItemProps {
-  post: PostHeader;
+  post: PostItemType;
   className?: string;
 }
 

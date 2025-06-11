@@ -1,10 +1,10 @@
 // src/components/MyPostList.tsx
 import React from 'react';
-import PostHeaderItem from './PostHeaderItem';
-import type { PostHeader } from '../types';
+import PostHeaderItem from './PostItem';
+import type { PostItemType } from '../types';
 
 interface MyPostListProps {
-  posts: PostHeader[];
+  posts: PostItemType[];
   loading: boolean;
   error: string | null;
   onEdit?: (postId: string) => void;

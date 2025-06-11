@@ -3,7 +3,7 @@ import type { ChangeEvent, FormEvent} from 'react';
 import axios from 'axios';
 
 interface ProfileFormProps {
-  initialData: {
+  initialData?: {
     user_name: string;
     email: string;
   };
@@ -13,8 +13,8 @@ interface ProfileFormProps {
 
 const ProfileEditForm: React.FC<ProfileFormProps> = ({ initialData, onSuccess, onError }) => {
   const [formData, setFormData] = useState({
-    user_name: initialData.user_name,
-    email: initialData.email,
+    user_name: initialData!.user_name,
+    email: initialData!.email,
   });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [resumeFile, setResumeFile] = useState<File | null>(null);

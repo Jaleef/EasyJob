@@ -1,10 +1,10 @@
 // src/components/PostList.tsx
 import React from "react";
-import PostItem from "./PostHeaderItem";
-import type { PostHeader } from "../types";
+import PostItem from "./PostItem";
+import type { PostItemType } from "../types";
 
 interface HomePostListProps {
-  posts: PostHeader[];
+  posts: PostItemType[];
   loading: boolean;
   error: string | null;
   itemClassName?: string;

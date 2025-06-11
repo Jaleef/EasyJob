@@ -1,12 +1,12 @@
 import React from 'react'
 import NavBar from '../components/NavBar'
 import { useEffect, useState } from 'react';
-import type { PostHeader, PostHeadersResponse } from '../types';
+import type { PostItemType, PostHeadersResponse } from '../types';
 import HomePostList from '../components/HomePostList';
 import axios from 'axios';
 
 function Home() {
-  const [posts, setPosts] = useState<PostHeader[]>([]);
+  const [posts, setPosts] = useState<PostItemType[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
