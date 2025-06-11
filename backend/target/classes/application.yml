@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: tlias-web-management
+    #数据库相关配置
+  datasource:
+    url: jdbc:mysql://rm-cn-e4v49p6r10004zuo.rwlb.cn-chengdu.rds.aliyuncs.com:3306/test
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: "@NPU111111"
+  servlet:
+    multipart:
+      #最大上传文件大小
+      max-file-size: 10MB
+      #最大请求大小(请求表单大小(多个文件,其他数据信息))
+      max-request-size: 100MB
+#mybatis相关配置
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true  #驼峰命名映射开关
+logging:
+  level:
+    org.springframework.beans.factory: DEBUG
+    org.springframework.jdbc.support.JdbcTransactionManager: debug
+aliyun:
+  oss:
+    bucket-name: "java-study-320721"
+    endpoint: "oss-cn-beijing.aliyuncs.com"
+    region: "cn-beijing"
