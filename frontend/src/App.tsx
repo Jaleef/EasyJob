@@ -8,7 +8,7 @@ import MyPosts from "./pages/MyPosts"
 import Submit from "./pages/Submit"
 
 function RootRedirect() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     navigate('/login');
@@ -18,7 +18,6 @@ function RootRedirect() {
 }
 
 function App() {
-
   return (
     <Routes>
       <Route path="/" element={<RootRedirect />} />
@@ -29,7 +28,7 @@ function App() {
       <Route path="/profile" element={<Profile />} />
       <Route path="/profile/submit" element={<Submit />} />
     </Routes>
-  )
+  );
 }
 
-export default App
+export default App;
