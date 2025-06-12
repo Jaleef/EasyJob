@@ -2,39 +2,42 @@ package com.software_test.service.impl;
 
 import com.software_test.pojo.PostResponse;
 import com.software_test.service.PostService;
-
+import com.software_test.mapper.PostMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.util.List;
 
 @Service    
 public class PostServiceImpl implements PostService {
 
+    @Autowired
+    private PostMapper postMapper;
+
     @Override
-    public PostResponse   getMainPagePosts() {
-        //todo 从数据库获取帖子列表 
-        PostResponse postResponse = new PostResponse();
-        return postResponse;
+    public PostResponse getMainPagePosts() {
+        List<PostResponse> posts = postMapper.selectAllPosts();
+        PostResponse response = new PostResponse();
+        response.posts = posts;
+        return response;
     }
 
     @Override
     public PostResponse getPostDetailById(Long id) {
-        // todo: 实际应查数据库
-        PostResponse postResponse = new PostResponse();
-        return postResponse;
+        return postMapper.selectPostDetailById(id);
     }
 
     @Override
     public PostResponse savePost(String title, String content) {
-        // todo: 实际应保存到数据库
-        PostResponse postResponse = new PostResponse();
-        return postResponse;
+        postMapper.insertPost(title, content);
+        // 可根据实际需求返回新建的帖子详情或空对象
+        return new PostResponse();
     }
 
     @Override
     public PostResponse getMainPagePostsByAccount(String account) {
-        // todo: 实际应从数据库获取
-        PostResponse postResponse = new PostResponse();
-        return postResponse;
+        List<PostResponse> posts = postMapper.selectPostsByAccount(account);
+        PostResponse response = new PostResponse();
+        response.posts = posts;
+        return response;
     }
-
 }

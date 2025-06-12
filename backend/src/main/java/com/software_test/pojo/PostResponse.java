@@ -9,10 +9,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostResponse {
-    String post_id;
-    String title;
-    String user_name;
-    String post_time;
-    String content;
- List<PostResponse> posts;
+    public  String post_id;
+    public  String title;
+    public  String user_name;
+    public  String post_time;
+    public  String content;
+    public  List<PostResponse> posts;
 }
