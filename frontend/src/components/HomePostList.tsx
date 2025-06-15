@@ -2,7 +2,7 @@
 import React from "react";
 import { useState } from "react";
 import PostItem from "./PostItem";
-import type { PostItemType, PostResponse, PostType } from "../types";
+import type { PostItemType, PostType } from "../types";
 import Modal from "./Modal";
 import axios from "axios";
 
@@ -22,23 +22,24 @@ const PostList: React.FC<HomePostListProps> = ({
   emptyMessage = "暂无帖子",
 }) => {
   const [selectedPost, setSelectedPost] = useState<PostType | null>(null);
+  const [post_id, setPostId] = useState<string | null>(null);
 
   const handleCloseModal = () => {
     setSelectedPost(null);
+    setPostId(null);
   }
   const handleOpenModal = async (post_id: string) => {
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await axios.get<PostResponse>(`${import.meta.env.VITE_API_URL}/${post_id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/home/posts`, {
+        params: {
+          post_id,
         },
       });
-      if (!response.status || !response.data.status) {
+      if (!response.status || !response.data.data) {
         throw new Error("获取帖子详情失败");
       }
       setSelectedPost(response.data.data);
+      setPostId(post_id);
     } catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.response?.status === 401) {
@@ -78,6 +79,7 @@ const PostList: React.FC<HomePostListProps> = ({
           isOpen={!!selectedPost}
           onClose={handleCloseModal}
           post={selectedPost}
+          post_id={post_id!}
         />
       )}
     </>

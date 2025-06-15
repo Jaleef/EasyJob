@@ -1,141 +1,149 @@
-// src/pages/Profile.tsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import type { ProfileResponse, UserProfile } from '../types';
+import { useNavigate } from 'react-router-dom';
+import NavBar from '../components/NavBar';
+import JobModal from '../components/JobModal';
+import ApplyerModal from '../components/ApplyerModal';
 
-const Profile: React.FC = () => {
+interface UserProfile {
+  account: string;
+  user_name: string;
+  email: string;
+}
+
+export default function Profile() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const [isModalSelect, setIsModalSelect] = useState(false);
+  const [isApplySelect, setIsApplySelect] = useState(false);
+
 
   useEffect(() => {
+    if (!localStorage.getItem('account')) {
+      setError('缺少用户账号信息');
+      setLoading(false);
+      return;
+    }
+
     const fetchProfile = async () => {
       try {
-        setLoading(true);
-        const token = localStorage.getItem('token');
-
-        const response = await axios.get<ProfileResponse>(`${import.meta.env.VITE_API_URL}/profile`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/profile`, {
+          params: { account: localStorage.getItem('account') }
         });
-
-        if (response.data.status) {
+        
+        if (response.status === 200 && response.data) {
           setProfile(response.data.data);
         } else {
-          throw new Error('获取个人信息失败');
+          setError(response.data.msg || '用户信息获取失败');
         }
       } catch (err) {
-        if (axios.isAxiosError(err)) {
-          if (err.response?.status === 401) {
-            setError('请先登录');
-          } else {
-            setError(err.response?.data?.message || err.message);
-          }
-        } else {
-          setError(err instanceof Error ? err.message : '未知错误');
-        }
+        console.error('获取用户信息失败:', err);
+        setError('服务器请求失败');
       } finally {
         setLoading(false);
       }
     };
 
     fetchProfile();
-  }, []);
+  }, [navigate]);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">加载中...</div>;
-  }
-
-  if (error) {
     return (
-      <div className="flex justify-center items-center h-screen text-red-500">
-        加载失败: {error}
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">加载中...</div>
       </div>
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="max-w-md p-6 bg-white rounded-lg shadow-md">
+          <h2 className="text-xl font-bold text-red-500 mb-4">错误</h2>
+          <p className="mb-4">{error}</p>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            返回
+          </button>
+        </div>
+      </div>
+    );
+  }
+  const onClose = () => {
+    setIsModalSelect(false);
+    setIsApplySelect(false);
+  }
   if (!profile) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        未找到个人信息
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="max-w-md p-6 bg-white rounded-lg shadow-md">
+          <h2 className="text-xl font-bold mb-4">用户不存在</h2>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            返回
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          {/* 头像和背景区域 */}
-          <div className="bg-gray-100 h-32 relative">
-            <div className="absolute -bottom-16 left-6">
-              <img
-                className="h-32 w-32 rounded-full border-4 border-white object-cover"
-                src={profile.user_img}
-                alt="用户头像"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.onerror = null;
-                  target.src = 'https://random_url';
-                }}
-              />
-            </div>
+    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <NavBar />
+      <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden mt-18">
+        <div className="bg-blue-500 p-6 text-white">
+          <h1 className="text-2xl font-bold">个人资料</h1>
+        </div>
+        <div className="p-6">
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-gray-700">账号</h2>
+            <p className="mt-1 text-gray-900">{profile.account}</p>
           </div>
-          
-          {/* 个人信息区域 */}
-          <div className="pt-20 px-6 pb-6">
-            <h1 className="text-2xl font-bold text-gray-900">{profile.user_name}</h1>
-            <p className="text-gray-600 mt-1">@{profile.account}</p>
-            
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div>
-                <h2 className="text-lg font-medium text-gray-900">基本信息</h2>
-                <dl className="mt-2 space-y-3">
-                  <div className="flex items-center">
-                    <dt className="w-24 text-gray-500">账号</dt>
-                    <dd className="text-gray-900">{profile.account}</dd>
-                  </div>
-                  <div className="flex items-center">
-                    <dt className="w-24 text-gray-500">用户名</dt>
-                    <dd className="text-gray-900">{profile.user_name}</dd>
-                  </div>
-                  <div className="flex items-center">
-                    <dt className="w-24 text-gray-500">邮箱</dt>
-                    <dd className="text-gray-900">{profile.email}</dd>
-                  </div>
-                </dl>
-              </div>
-              
-              {/* 可以在这里添加更多信息区块 */}
-              <div>
-                <h2 className="text-lg font-medium text-gray-900">其他信息</h2>
-                <div className="mt-2 text-gray-500">
-                  <p>这里可以添加更多用户信息</p>
-                </div>
-              </div>
-            </div>
-            
-            {/* 操作按钮 */}
-            <div className="mt-8 flex space-x-3">
-              <button
-                type="button"
-                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                编辑资料
-              </button>
-              <button
-                type="button"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                更改密码
-              </button>
-            </div>
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-gray-700">用户名</h2>
+            <p className="mt-1 text-gray-900">{profile.user_name}</p>
           </div>
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-700">邮箱</h2>
+            <p className="mt-1 text-gray-900">{profile.email}</p>
+          </div>
+          <div 
+            className="mb-6 flex items-center justify-between bg-gray-100 p-4 rounded-lg cursor-pointer hover:bg-gray-200 transition"
+            onClick={() => setIsModalSelect(true)}
+          >
+            <h2 className="text-lg font-semibold text-gray-700">查看我的应聘进程</h2>
+          </div>
+
+          <div
+            className="mb-6 flex items-center justify-between bg-gray-100 p-4 rounded-lg cursor-pointer hover:bg-gray-200 transition"
+            onClick={() => setIsApplySelect(true)}
+          >
+            <h2 className="text-lg font-semibold text-gray-700">查看所有应聘者</h2>
+          </div>
+          <button
+            onClick={() => navigate(-1)}
+            className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+          >
+            返回
+          </button>
         </div>
       </div>
+
+      <JobModal
+        isOpen={isModalSelect}
+        onClose={onClose}
+      />
+
+      <ApplyerModal
+        isOpen={isApplySelect}
+        onClose={onClose}
+      />
     </div>
   );
-};
-
-export default Profile;
+}

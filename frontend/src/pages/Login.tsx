@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -7,38 +7,13 @@ export default function Login() {
 
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
-  const [isLocked, setIsLocked] = useState(false);
-  const [lockTime, setLockTime] = useState(0);
-  const [tryCount, setTryCount] = useState(0);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isLocked && lockTime > 0) {
-      timer = setInterval(() => {
-        setLockTime((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            setIsLocked(false);
-            setTryCount(0);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [isLocked, lockTime])
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    if (isLocked) {
-      setError(`请等待 ${lockTime} 秒后再尝试登录`);
-      return;
-    }
+    console.log("账号: ", account, "密码: ", password);
 
     if (account === '' || password === '') {
       setError("账号和密码不能为空");
@@ -50,22 +25,14 @@ export default function Login() {
         account,
         password
       });
-
-      const data = response.data;
-      if (data.status) {
-        localStorage.setItem('token', data.token);
-        setError('');
-        alert("登陆成功");
-        navigate("/mainpage")
-      } else {
-        setTryCount(data.try_count);
-        setError(data.msg)
-        if (tryCount >= 5) {
-          setIsLocked(true);
-          setLockTime(30);
-          setError("账号或密码错误, 因错误次数过多, 登陆锁定30s")
-        }
+      if (response.status !== 200) {
+        setError("服务器响应异常");
+        return;
       }
+      localStorage.setItem('account', account);
+      setError('');
+      alert("登陆成功");
+      navigate("/home")
     } catch (err) {
       setError(err + "服务器请求失败")
     }
@@ -99,10 +66,7 @@ export default function Login() {
           <div className="flex justify-between space-x-4 pt-2">
             <button
               type="submit"
-              disabled={isLocked}
-              className={`flex-1 py-2 rounded-lg text-white font-semibold transition ${
-                isLocked ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-                }`}
+              className="flex-1 py-2 rounded-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 transition"
               >登录</button>
 
             <button

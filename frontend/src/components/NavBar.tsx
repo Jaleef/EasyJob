@@ -4,8 +4,14 @@ import { Link } from "react-router-dom"; // 如果你使用 react-router
 const Navbar = () => {
   const userAvatar = "https://example.com/avatar.jpg"; // 替换为实际头像 URL
 
+  const hangdleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("account");
+    window.location.href = "/login"; // 重定向到登录页面
+  };
+
   return (
-    <nav className="bg-white shadow-sm fixed w-full top-0 z-10">
+    <nav className={`bg-white shadow-sm fixed w-full top-0 z-10}`}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex justify-between h-16">
           {/* 左侧可以放置logo或其他内容 */}
@@ -27,6 +33,20 @@ const Navbar = () => {
             >
               我的帖子
             </Link>
+
+            <Link
+              to="/home/upload"
+              className="text-gray-700 hover:text-blue-600 px-8 py-2 rounded-md text-sm font-medium transition-colors"
+            >
+              上传内容
+            </Link>
+
+            <div
+              onClick={hangdleLogout}
+              className="text-gray-700 hover:text-blue-600 px-8 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer"
+            >
+              退出登录
+            </div>
           </div>
 
           {/* 右侧头像 */}
@@ -40,22 +60,6 @@ const Navbar = () => {
             </Link>
           </div>
         </div>
-      </div>
-
-      {/* 移动端菜单 (可选) */}
-      <div className="md:hidden flex justify-center py-2">
-        <Link
-          to="/"
-          className="text-gray-700 hover:text-blue-600 px-3 py-1 rounded-md text-sm font-medium"
-        >
-          主页
-        </Link>
-        <Link
-          to="/my-posts"
-          className="text-gray-700 hover:text-blue-600 px-3 py-1 rounded-md text-sm font-medium"
-        >
-          我的帖子
-        </Link>
       </div>
     </nav>
   );

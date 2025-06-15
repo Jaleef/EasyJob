@@ -1,44 +1,22 @@
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ProfileModal from "../components/ProfileModal";
 
 
 export default function Register() {
   const [account, setAccount] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLocked, setIsLocked] = useState(false);
-  const [lockTime, setLockTime] = useState(0);
-  const [tryCount, setTryCount] = useState(0);
   const [error, setError] = useState('');
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-      let timer: NodeJS.Timeout;
-      if (isLocked && lockTime > 0) {
-        timer = setInterval(() => {
-          setLockTime((prev) => {
-            if (prev <= 1) {
-              clearInterval(timer);
-              setIsLocked(false);
-              setTryCount(0);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-      }
-      return () => clearInterval(timer);
-    }, [isLocked, lockTime])
-
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    console.log("账号: ", account, "密码: ", password)
 
-    if (isLocked) {
-      setError(`请等待${lockTime} 秒后再尝试注册`);
-      return;
-    }
     if (password != confirmPassword) {
       setError("两次输入的密码不一致");
       return;
@@ -53,18 +31,13 @@ export default function Register() {
         account,
         password
       });
-      const data = response.data;
-      if (data.status) {
+      console.log(account, " ", password)
+      if (response.status == 200) {
         alert("注册成功，请登录");
-        navigate("/login");
+        setShowProfileModal(true);
+        // navigate("/login");
       } else {
-        setTryCount(data.try_count);
-        setError(data.msg);
-        if (tryCount >= 5) {
-          setIsLocked(true);
-          setLockTime(30);
-          setError("注册失败, 因错误次数过多, 注册锁定30s")
-        }
+        setError(response.data.msg || "注册失败，请稍后再试");
       }
 
     } catch (error) {
@@ -73,10 +46,31 @@ export default function Register() {
     }
   }
 
+  const handleProfileSubmit = (profileData: { user_name: string; email: string }) => {
+    console.log("Profile Data: ", profileData);
+    axios.post(`${import.meta.env.VITE_SERVER_URL}/profile/submit`, {
+      account,
+      ...profileData
+    })
+    .then(response => {
+      if (response.status) {
+        alert("个人信息更新成功");
+        setShowProfileModal(false);
+        navigate('/login');
+      } else {
+        setError(response.data.msg || "更新失败，请稍后再试");
+      }
+    })
+    .catch(error => {
+      console.error("更新个人信息请求失败:", error);
+      setError("服务器请求失败");
+    });
+  };
+
   return (
   <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
     <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-      <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
+      <h2 className="text-2xl font-bold text-center mb-6">注册</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-gray-700 font-medium mb-1">账号</label>
@@ -112,10 +106,7 @@ export default function Register() {
         <div className="flex justify-between space-x-4 pt-2">
           <button
             type="submit"
-            disabled={isLocked}
-            className={`flex-1 py-2 rounded-lg text-white font-semibold transition ${
-              isLocked ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-              }`}
+            className="flex-1 py-2 rounded-lg text-white font-semibold bg-blue-500 hover:bg-blue-600 transition"
             >注册</button>
 
           <button
@@ -131,5 +122,14 @@ export default function Register() {
       {/* {错误信息} */}
       {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
     </div>
+
+    <ProfileModal
+        isOpen={showProfileModal}
+        onClose={() => {
+          setShowProfileModal(false);
+          navigate('/login');
+        }}
+        onSubmit={handleProfileSubmit}
+      />
   </div>
 );}
